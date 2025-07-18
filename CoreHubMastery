@@ -1,0 +1,125 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/jensonhirst/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({Name = "Mastery Hub by Blue Soul", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local Tab = Window:MakeTab({
+	Name = "Rob (NEW)",
+	Icon = "rbxassetid://139895600427863",
+	PremiumOnly = false
+})
+
+
+local Players = game:GetService("Players")
+
+Tab:AddButton({
+	Name = "Absorb 1000 People Quest",
+	Callback = function()
+		-- Simulate pressing 'E'
+		local VirtualInputManager = game:GetService("VirtualInputManager")
+		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+
+		-- Wait 4 seconds before teleporting
+		task.wait(4)
+
+		-- Get the local player
+		local localPlayer = Players.LocalPlayer
+		if not localPlayer.Character or not localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			return
+		end
+
+		-- Get all players in the game
+		local playerList = {}
+		local lowestY = math.huge  -- Track the lowest Y position
+
+		for _, player in pairs(Players:GetPlayers()) do
+			if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+				local yPosition = player.Character.HumanoidRootPart.Position.Y
+				table.insert(playerList, {player = player, y = yPosition})
+
+				-- Update the lowest Y position
+				if yPosition < lowestY then
+					lowestY = yPosition
+				end
+			end
+		end
+
+		-- Filter out players who are significantly above the lowest Y position
+		local validTargets = {}
+		for _, data in pairs(playerList) do
+			if data.y <= lowestY + 5 then  -- Allow small variation to avoid minor height differences
+				table.insert(validTargets, data.player)
+			end
+		end
+
+		-- Teleport to a random valid player
+		if #validTargets > 0 then
+			local targetPlayer = validTargets[math.random(1, #validTargets)]
+			localPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+		end
+	end    
+})
+
+Tab:AddButton({
+	Name = "Travel 25,000 studs while being rob",
+	Callback = function()
+		local VirtualInputManager = game:GetService("VirtualInputManager")
+		local Players = game:GetService("Players")
+
+		-- Simulate pressing E
+		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+
+		-- Wait 4 seconds
+		task.wait(4)
+
+		-- Set WalkSpeed to 50
+		local player = Players.LocalPlayer
+		if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+			player.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = 50
+
+			-- Send Notification
+			OrionLib:MakeNotification({
+				Name = "Speed Increased",
+				Content = "Your WalkSpeed is now faster",
+				Time = 3
+			})
+		end
+	end    
+})
+
+
+local Tab = Window:MakeTab({
+	Name = "Misc",
+	Icon = "rbxassetid://84663022595923",
+	PremiumOnly = false
+})
+
+Tab:AddButton({
+	Name = "Grow Character",
+	Callback = function()
+		local player = game.Players.LocalPlayer
+		local character = player.Character
+
+		if character and character:FindFirstChild("HumanoidRootPart") then
+			for _, part in pairs(character:GetChildren()) do
+				if part:IsA("BasePart") then
+					part.Size = part.Size * 1.2 -- Increases size by 20%
+				end
+			end
+		end
+	end    
+})
+
+
+local Tab = Window:MakeTab({
+	Name = "Credits",
+	Icon = "rbxassetid://136131635112017",
+	PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+	Name = "blue_s0ul1 on discord"
+})
+
+local Section = Tab:AddSection({
+	Name = "More functions coming soon"
+})
