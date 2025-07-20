@@ -1,0 +1,131 @@
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+local Window = Rayfield:CreateWindow({
+	Name = "🌱 Core Hub",
+	LoadingTitle = "Grow A Garden GUI",
+	LoadingSubtitle = "by blue_s0ul1",
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = "GrowAGarden",
+		FileName = "GardenConfig"
+	},
+	Discord = {
+		Enabled = false
+	},
+	KeySystem = false
+})
+
+local Tab = Window:CreateTab("Main", 72785174425122)
+
+-- 🌧️ Auto Water
+Tab:CreateToggle({
+	Name = "Auto Water Plants",
+	CurrentValue = false,
+	Callback = function(Value)
+		getgenv().AutoWater = Value
+		while getgenv().AutoWater do
+			for _, plant in pairs(workspace.Plants:GetChildren()) do
+				if plant:FindFirstChild("Water") then
+					fireclickdetector(plant.Water:FindFirstChildOfClass("ClickDetector"))
+				end
+			end
+			task.wait(1)
+		end
+	end,
+})
+
+-- 🌱 Instant Grow
+Tab:CreateButton({
+	Name = "Instant Grow All Plants",
+	Callback = function()
+		for _, plant in pairs(workspace.Plants:GetChildren()) do
+			if plant:FindFirstChild("Stage") then
+				plant.Stage.Value = "FullyGrown"
+			end
+		end
+	end,
+})
+
+-- ✨ Golden ESP
+Tab:CreateButton({
+	Name = "Highlight Golden Plants",
+	Callback = function()
+		for _, plant in pairs(workspace.Plants:GetChildren()) do
+			if plant.Name == "GoldenPlant" then
+				local esp = Instance.new("BoxHandleAdornment")
+				esp.Size = plant.Size
+				esp.Adornee = plant
+				esp.AlwaysOnTop = true
+				esp.ZIndex = 10
+				esp.Color3 = Color3.new(1, 1, 0)
+				esp.Transparency = 0.5
+				esp.Parent = plant
+			end
+		end
+	end,
+})
+
+-- 💰 Auto Collect
+Tab:CreateToggle({
+	Name = "Auto Collect",
+	CurrentValue = false,
+	Callback = function(Value)
+		getgenv().AutoCollect = Value
+		while getgenv().AutoCollect do
+			for _, reward in pairs(workspace:FindFirstChild("Rewards") and workspace.Rewards:GetChildren() or {}) do
+				firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, reward, 0)
+				task.wait()
+				firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, reward, 1)
+			end
+			task.wait(1)
+		end
+	end,
+})
+Tab:CreateButton({
+	Name = "Dupe Held Pet",
+	Callback = function()
+		local char = game.Players.LocalPlayer.Character
+		if not char then return end
+
+		local heldPet = nil
+
+		-- Look for a pet being held (can be tool or directly in character)
+		for _, item in pairs(char:GetChildren()) do
+			if item:IsA("Model") and item:FindFirstChild("PetTag") then
+				heldPet = item
+				break
+			elseif item:IsA("Tool") and item:FindFirstChild("Handle") and item:FindFirstChild("PetTag") then
+				heldPet = item
+				break
+			end
+		end
+
+		if heldPet then
+			local dupe = heldPet:Clone()
+			dupe.Name = heldPet.Name .. "_Clone"
+
+			local randomScale = math.random(8, 16) / 10 -- Random between 0.8x and 1.6x size
+
+			for _, part in pairs(dupe:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.Size = part.Size * randomScale
+					part.Anchored = false
+				end
+			end
+
+			-- Put it in front of the player
+			local root = char:FindFirstChild("HumanoidRootPart")
+			if root then
+				dupe:SetPrimaryPartCFrame(root.CFrame * CFrame.new(0, 0, -5))
+			end
+
+			dupe.Parent = workspace
+		else
+			Rayfield:Notify({
+				Title = "No Pet Found!",
+				Content = "You must be holding a pet",
+				Duration = 4,
+			})
+		end
+	end,
+})
