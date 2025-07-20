@@ -1,0 +1,342 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+	Name = "Core | Hub",
+	LoadingTitle = "Core | Hub",
+	LoadingSubtitle = "by blue_s0u1 on discord",
+	ConfigurationSaving = {
+		Enabled = false,
+		FolderName = nil,
+		FileName = "Core Hub"
+	},
+	Discord = {
+		Enabled = true,
+		Invite = "https://discord.gg/zjjuB7cBuj",
+		RememberJoins = true
+	},
+	KeySystem = false,
+	KeySettings = {
+		Title = "Key | Core Hub",
+		Subtitle = "Key System",
+		Note = "Key In https://discord.gg/zjjuB7cBuj",
+		FileName = "TestKey",
+		SaveKey = false,
+		GrabKeyFromSite = true,
+		Key = {"robloxcore"}
+	}
+})
+
+local MainTab = Window:CreateTab("🏠 Home", nil)
+local MainSection = MainTab:CreateSection("Main")
+
+local StarterGui = game:GetService("StarterGui")
+
+StarterGui:SetCore("SendNotification", {
+	Title = "Enjoy!",
+	Text = "If you have any bugs DM blue_s0ul1 on discord!",
+	Duration = 5, -- How long the notification stays on screen
+	Icon = "rbxassetid://18931838023" -- Custom image ID
+})
+
+
+local WalkSpeedSlider = MainTab:CreateSlider({
+	Name = "WalkSpeed Slider",
+	Range = {1, 350},
+	Increment = 1,
+	Suffix = "Speed",
+	CurrentValue = 16,
+	Flag = "sliderws",
+	Callback = function(Value)
+		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+	end,
+})
+
+local JumpPowerSlider = MainTab:CreateSlider({
+	Name = "JumpPower Slider",
+	Range = {1, 350},
+	Increment = 1,
+	Suffix = "Power",
+	CurrentValue = 16,
+	Flag = "sliderjp",
+	Callback = function(Value)
+		game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+	end,
+})
+
+local Input = MainTab:CreateInput({
+	Name = "Walkspeed",
+	PlaceholderText = "1-500",
+	RemoveTextAfterFocusLost = true,
+	Callback = function(Text)
+		local speed = tonumber(Text)
+		if speed then
+			game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed
+		end
+	end,
+})
+
+
+local EspButton = MainTab:CreateButton({
+	Name = "Esp Players Toggle",
+	Callback = function()
+		_G.espEnabled = not _G.espEnabled
+
+		if _G.espEnabled then
+			game.StarterGui:SetCore("SendNotification", {Title="Core Hub"; Text="ESP Players Activated!"; Duration=5;})
+
+			local function createESP(player)
+				if player.Character then
+					if player.Character:FindFirstChild("ESP_Highlight") then
+						player.Character.ESP_Highlight:Destroy()
+					end
+
+					local highlight = Instance.new("Highlight")
+					highlight.Parent = player.Character
+					highlight.Adornee = player.Character
+					highlight.FillColor = Color3.new(1, 0, 0) -- Red color for the fill
+					highlight.OutlineColor = Color3.new(1, 1, 1) -- White outline
+					highlight.FillTransparency = 0.5 -- Semi-transparent fill
+					highlight.OutlineTransparency = 0 -- Fully visible outline
+					highlight.Name = "ESP_Highlight"
+				end
+			end
+
+			-- Add ESP to existing players
+			for _, player in pairs(game.Players:GetPlayers()) do
+				if player ~= game.Players.LocalPlayer then
+					createESP(player)
+				end
+			end
+
+			-- Handle new players joining
+			game.Players.PlayerAdded:Connect(function(player)
+				player.CharacterAdded:Connect(function()
+					createESP(player)
+				end)
+			end)
+
+			_G.espDisconnect = game:GetService("RunService").RenderStepped:Connect(function()
+				if not _G.espEnabled then
+					for _, player in pairs(game.Players:GetPlayers()) do
+						if player.Character and player.Character:FindFirstChild("ESP_Highlight") then
+							player.Character.ESP_Highlight:Destroy()
+						end
+					end
+					if _G.espDisconnect then
+						_G.espDisconnect:Disconnect()
+						_G.espDisconnect = nil
+					end
+				end
+			end)
+		else
+			-- Remove all existing ESP highlights
+			for _, player in pairs(game.Players:GetPlayers()) do
+				if player.Character and player.Character:FindFirstChild("ESP_Highlight") then
+					player.Character.ESP_Highlight:Destroy()
+				end
+			end
+		end
+	end,
+})
+
+local MiscTab = Window:CreateTab("KJ", nil)
+
+local MiscSection = MiscTab:CreateSection("KJ")
+
+local SpiralingButton = MiscTab:CreateButton({
+	Name = "Spiraling Storm",
+	Callback = function()
+		local player = game.Players.LocalPlayer
+		local character = player.Character or player.CharacterAdded:Wait()
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+		if humanoid then
+			local animation = Instance.new("Animation")
+			animation.AnimationId = "rbxassetid://78521642007560" -- Replace with your animation ID
+			local animationTrack = humanoid:LoadAnimation(animation)
+			animationTrack:Play()
+		else
+			warn("Humanoid not found in character!")
+		end
+	end,
+})
+local MiscSection = MiscTab:CreateSection("KJ ult")
+local UltimateButton = MiscTab:CreateButton({
+	Name = "Ultimate 1",
+	Callback = function()
+		local player = game.Players.LocalPlayer
+		local character = player.Character or player.CharacterAdded:Wait()
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+		if humanoid then
+			local animation = Instance.new("Animation")
+			animation.AnimationId = "rbxassetid://17140902079" -- Replace with your animation ID
+			local animationTrack = humanoid:LoadAnimation(animation)
+			animationTrack:Play()
+		else
+			warn("Humanoid not found in character!")
+		end
+	end,
+})
+local OpTab = Window:CreateTab("OP", nil)
+local OpSection = OpTab:CreateSection("Overpowered Stuff")
+
+-- Time Freeze Button (Client-side visual)
+local TimeFreeze = OpTab:CreateButton({
+	Name = "Time Freeze",
+	Callback = function()
+		for _, player in pairs(game.Players:GetPlayers()) do
+			if player ~= game.Players.LocalPlayer and player.Character then
+				for _, part in pairs(player.Character:GetDescendants()) do
+					if part:IsA("BasePart") then
+						part.Anchored = true
+					end
+				end
+			end
+		end
+
+		game.StarterGui:SetCore("SendNotification", {
+			Title = "Core Hub",
+			Text = "Time frozen for 5 seconds!",
+			Duration = 3
+		})
+
+		task.delay(5, function()
+			for _, player in pairs(game.Players:GetPlayers()) do
+				if player ~= game.Players.LocalPlayer and player.Character then
+					for _, part in pairs(player.Character:GetDescendants()) do
+						if part:IsA("BasePart") then
+							part.Anchored = false
+						end
+					end
+				end
+			end
+			game.StarterGui:SetCore("SendNotification", {
+				Title = "Core Hub",
+				Text = "Time resumed.",
+				Duration = 3
+			})
+		end)
+	end,
+})
+
+local AntiRagdollToggle = OpTab:CreateToggle({
+	Name = "Anti-Ragdoll",
+	CurrentValue = false,
+	Flag = "TrueAntiRagdoll",
+	Callback = function(state)
+		if state then
+			game.StarterGui:SetCore("SendNotification", {
+				Title = "Core Hub",
+				Text = "Anti-Ragdoll Enabled",
+				Duration = 3
+			})
+
+			-- Start the loop
+			_G.AntiRagdoll = game:GetService("RunService").RenderStepped:Connect(function()
+				local char = game.Players.LocalPlayer.Character
+				if char and char:FindFirstChildOfClass("Humanoid") then
+					-- Stay standing
+					char:FindFirstChildOfClass("Humanoid").PlatformStand = false
+
+					-- Delete ragdoll joints/constraints
+					for _, v in pairs(char:GetDescendants()) do
+						if v:IsA("BallSocketConstraint") or v:IsA("HingeConstraint") or v:IsA("Motor6D") and v.Name == "RagdollJoint" then
+							v:Destroy()
+						end
+					end
+
+					-- Reset body part anchoring just in case
+					for _, part in pairs(char:GetDescendants()) do
+						if part:IsA("BasePart") then
+							part.Anchored = false
+						end
+					end
+				end
+			end)
+		else
+			-- Disable the loop
+			if _G.AntiRagdoll then
+				_G.AntiRagdoll:Disconnect()
+				_G.AntiRagdoll = nil
+			end
+
+			game.StarterGui:SetCore("SendNotification", {
+				Title = "Core Hub",
+				Text = "Anti-Ragdoll Disabled",
+				Duration = 3
+			})
+		end
+	end
+})
+
+local InvisibilityToggle = OpTab:CreateToggle({
+	Name = "Invisible",
+	CurrentValue = false,
+	Flag = "InvisibleActive",
+	Callback = function(state)
+		local char = game.Players.LocalPlayer.Character
+		if not char then return end
+
+		for _, part in pairs(char:GetDescendants()) do
+			if part:IsA("BasePart") or part:IsA("Decal") then
+				part.Transparency = state and 1 or 0
+			elseif part:IsA("Accessory") and part:FindFirstChild("Handle") then
+				part.Handle.Transparency = state and 1 or 0
+			end
+		end
+
+		-- Optional: make name tag disappear
+		local head = char:FindFirstChild("Head")
+		if head and head:FindFirstChild("NameTag") then
+			head.NameTag.Enabled = not state
+		end
+
+		game.StarterGui:SetCore("SendNotification", {
+			Title = "Core Hub",
+			Text = state and "Invisibility Enabled" or "Invisibility Disabled",
+			Duration = 3
+		})
+	end
+})
+local hopEnabled = false
+
+local function ServerHop()
+	local HttpService = game:GetService("HttpService")
+	local TeleportService = game:GetService("TeleportService")
+	local PlaceId = game.PlaceId
+
+	local success, servers = pcall(function()
+		return HttpService:JSONDecode(game:HttpGet(
+			"https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+			))
+	end)
+
+	if success and servers and servers.data then
+		for _, server in ipairs(servers.data) do
+			if server.playing < server.maxPlayers then
+				TeleportService:TeleportToPlaceInstance(PlaceId, server.id)
+				break
+			end
+		end
+	end
+end
+
+local AutoHopToggle = OpTab:CreateToggle({
+	Name = "Anti Ban (Chat Detect)",
+	CurrentValue = false,
+	Flag = "AutoHopOnChat",
+	Callback = function(state)
+		hopEnabled = state
+	end,
+})
+
+game.Players.PlayerChatted:Connect(function(player, message)
+	if hopEnabled then
+		local msg = message:lower()
+		if msg:find("hacker") or msg:find("exploiter") or msg:find("hack") then
+			ServerHop()
+		end
+	end
+end)
+
