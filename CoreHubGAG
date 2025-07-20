@@ -17,115 +17,69 @@ local Window = Rayfield:CreateWindow({
 
 local Tab = Window:CreateTab("Main", 72785174425122)
 
--- 🌧️ Auto Water
-Tab:CreateToggle({
-	Name = "Auto Water Plants",
-	CurrentValue = false,
-	Callback = function(Value)
-		getgenv().AutoWater = Value
-		while getgenv().AutoWater do
-			for _, plant in pairs(workspace.Plants:GetChildren()) do
-				if plant:FindFirstChild("Water") then
-					fireclickdetector(plant.Water:FindFirstChildOfClass("ClickDetector"))
-				end
-			end
-			task.wait(1)
-		end
-	end,
-})
-
--- 🌱 Instant Grow
 Tab:CreateButton({
-	Name = "Instant Grow All Plants",
+	Name = "Dupe Pet",
 	Callback = function()
-		for _, plant in pairs(workspace.Plants:GetChildren()) do
-			if plant:FindFirstChild("Stage") then
-				plant.Stage.Value = "FullyGrown"
-			end
-		end
-	end,
-})
+		local player = game.Players.LocalPlayer
+		local char = player.Character or player.CharacterAdded:Wait()
+		local root = char:FindFirstChild("HumanoidRootPart")
+		if not root then return end
 
--- ✨ Golden ESP
-Tab:CreateButton({
-	Name = "Highlight Golden Plants",
-	Callback = function()
-		for _, plant in pairs(workspace.Plants:GetChildren()) do
-			if plant.Name == "GoldenPlant" then
-				local esp = Instance.new("BoxHandleAdornment")
-				esp.Size = plant.Size
-				esp.Adornee = plant
-				esp.AlwaysOnTop = true
-				esp.ZIndex = 10
-				esp.Color3 = Color3.new(1, 1, 0)
-				esp.Transparency = 0.5
-				esp.Parent = plant
-			end
-		end
-	end,
-})
-
--- 💰 Auto Collect
-Tab:CreateToggle({
-	Name = "Auto Collect",
-	CurrentValue = false,
-	Callback = function(Value)
-		getgenv().AutoCollect = Value
-		while getgenv().AutoCollect do
-			for _, reward in pairs(workspace:FindFirstChild("Rewards") and workspace.Rewards:GetChildren() or {}) do
-				firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, reward, 0)
-				task.wait()
-				firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, reward, 1)
-			end
-			task.wait(1)
-		end
-	end,
-})
-Tab:CreateButton({
-	Name = "Dupe Held Pet",
-	Callback = function()
-		local char = game.Players.LocalPlayer.Character
-		if not char then return end
-
-		local heldPet = nil
-
-		-- Look for a pet being held (can be tool or directly in character)
-		for _, item in pairs(char:GetChildren()) do
-			if item:IsA("Model") and item:FindFirstChild("PetTag") then
-				heldPet = item
-				break
-			elseif item:IsA("Tool") and item:FindFirstChild("Handle") and item:FindFirstChild("PetTag") then
-				heldPet = item
+		-- Look for any pet-like model: matches name pattern
+		local pet = nil
+		for _, child in pairs(char:GetChildren()) do
+			if child:IsA("Model") and string.match(child.Name, "%[.-%]") then
+				pet = child
 				break
 			end
 		end
 
-		if heldPet then
-			local dupe = heldPet:Clone()
-			dupe.Name = heldPet.Name .. "_Clone"
-
-			local randomScale = math.random(8, 16) / 10 -- Random between 0.8x and 1.6x size
-
-			for _, part in pairs(dupe:GetDescendants()) do
-				if part:IsA("BasePart") then
-					part.Size = part.Size * randomScale
-					part.Anchored = false
-				end
-			end
-
-			-- Put it in front of the player
-			local root = char:FindFirstChild("HumanoidRootPart")
-			if root then
-				dupe:SetPrimaryPartCFrame(root.CFrame * CFrame.new(0, 0, -5))
-			end
-
-			dupe.Parent = workspace
-		else
+		if not pet then
 			Rayfield:Notify({
-				Title = "No Pet Found!",
-				Content = "You must be holding a pet",
+				Title = "Pet Not Found",
+				Content = "You must be holding a pet like Crab [2.89KG] [Age 15]",
 				Duration = 4,
 			})
+			return
 		end
+
+		-- Clone and resize
+		local clone = pet:Clone()
+		clone.Name = pet.Name .. "_Clone"
+
+		-- Set PrimaryPart if missing
+		if not clone.PrimaryPart then
+			for _, part in pairs(clone:GetDescendants()) do
+				if part:IsA("BasePart") then
+					clone.PrimaryPart = part
+					break
+				end
+			end
+		end
+
+		if not clone.PrimaryPart then
+			Rayfield:Notify({
+				Title = "Clone Failed",
+				Content = "Pet has no PrimaryPart.",
+				Duration = 4,
+			})
+			return
+		end
+
+		-- Apply random scale (0.8x to 1.5x)
+		local scale = math.random(8, 15) / 10
+		for _, part in ipairs(clone:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.Size = part.Size * scale
+				part.Anchored = false
+			end
+		end
+
+		-- Move it in front of player
+		local offset = CFrame.new(0, 0, -5)
+		clone:SetPrimaryPartCFrame(root.CFrame * offset)
+		clone.Parent = workspace
 	end,
 })
+
+
