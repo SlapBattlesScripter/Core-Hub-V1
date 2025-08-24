@@ -1,0 +1,41 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+	Name = "Regular | Hub",
+	LoadingTitle = "Regular | Hub",
+	LoadingSubtitle = "by ??? on discord",
+	ConfigurationSaving = {
+		Enabled = false,
+		FolderName = nil,
+		FileName = "Regular Hub"
+	},
+	Discord = {
+		Enabled = true,
+		Invite = "discord",
+		RememberJoins = true
+	},
+	KeySystem = true,
+	KeySettings = {
+		Title = "Key | Regular Hub",
+		Subtitle = "Key System",
+		Note = "KEY IS PAID",
+		FileName = "TestKey",
+		SaveKey = false,
+		GrabKeyFromSite = true,
+		Key = {"asm7t3b2san67ddlr"}
+	}
+})
+
+local MainTab = Window:CreateTab("", nil)
+local MainSection = MainTab:CreateSection("If you want to continue the script must give esok (it will auto detect)")
+
+local StarterGui = game:GetService("StarterGui")
+
+StarterGui:SetCore("SendNotification", {
+	Title = "Error!",
+	Text = "If you want to continue the script must give esok (it will auto detect)",
+	Duration = 5, -- How long the notification stays on screen
+	Icon = "rbxassetid://0" -- Custom image ID
+})
+
+
